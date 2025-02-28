@@ -38,14 +38,17 @@ def close_application(app_name):
 
 def system_control(command):
     # """Handles system control commands like shutdown, restart, and volume control."""
-    if "shutdown" in command.lower():
+    command = command.lower()
+    if "shutdown" in command:
         os.system("shutdown /s /t 10")  # Shutdown in 10 seconds
-    elif "restart" in command.lower():
+    elif "restart" in command:
         os.system("shutdown /r /t 10")
-    elif "increase volume" in command.lower():
+    elif "increase volume" in command:
         os.system("nircmd.exe changesysvolume 5000")  # Requires NirCmd tool
-    elif "mute" in command.lower():
+    elif "mute" in command:
         os.system("nircmd.exe mutesysvolume 1")
+    elif "open calculator" in command:
+        os.system("calc.exe")
 
 def processCommand(c):
     # """Process commands to open apps, websites, or perform system tasks."""
@@ -90,24 +93,16 @@ if __name__ == "__main__":
     speak("Preparing machine....")
 
     while True:
-        try:
-            with sr.Microphone() as source:
-                print("Listening...")
-                audio = recognizer.listen(source, timeout=3, phrase_time_limit=4)
+        while True:
+            try:
+             with sr.Microphone() as source:
+                print("Listening for command...")
+                audio = recognizer.listen(source)
+                command = recognizer.recognize_google(audio)
+                print(f"Command: {command}")
+                # Process the command
+                processCommand(command)
+                break 
 
-            word = recognizer.recognize_google(audio)
-            print(f"User: {word}")
-
-            if word.lower() == "hello":
-                speak("Yes Sir, what is your wish?")
-                
-                with sr.Microphone() as source:
-                    print("What is your wish...")
-                    audio = recognizer.listen(source)
-                    command = recognizer.recognize_google(audio)
-                    print(f"Command: {command}")
-                    
-                    processCommand(command)
-
-        except Exception as e:
-            print(f"Error: {e}")
+            except Exception as e:
+              print(f"Error: {e}")
